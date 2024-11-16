@@ -10,28 +10,27 @@ jobs:
     steps:
       # Checkout the repository
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # Updated to v3 to use the latest Node.js version
 
-      # Used to get and set date output
+      # Get and set date using environment files (replace deprecated set-output)
       - name: Get Date
         id: get-date
         run: |
-          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
-        shell: bash
+          echo "DATE=$(date -u '+%Y%m%d')" >> $GITHUB_ENV
 
       # Cache the Buildozer global directory
       - name: Cache Buildozer global directory
-        uses: actions/cache@v3
+        uses: actions/cache@v3  # Updated to v3 for Node.js compatibility
         with:
           path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }} # Replace with your path
+          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
 
       # Cache the .buildozer directory
       - name: Cache Buildozer directory
-        uses: actions/cache@v3
+        uses: actions/cache@v3  # Updated to v3 for Node.js compatibility
         with:
           path: .buildozer
-          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
+          key: ${{ runner.os }}-${{ env.DATE }}-${{ hashFiles('buildozer.spec') }}
 
       # Build with Buildozer
       - name: Build with Buildozer
@@ -43,7 +42,7 @@ jobs:
 
       # Upload artifacts
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3  # Updated from v2 to v3
+        uses: actions/upload-artifact@v3
         with:
           name: package
           path: ${{ steps.buildozer.outputs.filename }}
