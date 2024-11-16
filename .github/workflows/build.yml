@@ -8,31 +8,35 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      # Checkout the repository
-      - name: Checkout code
-        uses: actions/checkout@v3  # Updated to v3 to use the latest Node.js version
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      # Get and set date using environment files (replace deprecated set-output)
+      # Explicitly remove any lingering Git extraheader configurations to avoid issues
+      - name: Remove extraheader from git config
+        run: |
+          git config --unset-all http.https://github.com/.extraheader || true
+
+      # Used to cache dependencies with a timeout
       - name: Get Date
         id: get-date
         run: |
-          echo "DATE=$(date -u '+%Y%m%d')" >> $GITHUB_ENV
+          echo "date=$(date -u +%Y%m%d)" >> $GITHUB_ENV
+        shell: bash
 
-      # Cache the Buildozer global directory
       - name: Cache Buildozer global directory
-        uses: actions/cache@v3  # Updated to v3 for Node.js compatibility
+        uses: actions/cache@v3
         with:
           path: .buildozer_global
           key: buildozer-global-${{ hashFiles('buildozer.spec') }}
 
-      # Cache the .buildozer directory
       - name: Cache Buildozer directory
-        uses: actions/cache@v3  # Updated to v3 for Node.js compatibility
+        uses: actions/cache@v3
         with:
           path: .buildozer
-          key: ${{ runner.os }}-${{ env.DATE }}-${{ hashFiles('buildozer.spec') }}
+          key: ${{ runner.os }}-${{ env.date }}-${{ hashFiles('buildozer.spec') }}
 
-      # Build with Buildozer
       - name: Build with Buildozer
         uses: ArtemSBulgakov/buildozer-action@v1
         id: buildozer
@@ -40,7 +44,6 @@ jobs:
           command: buildozer android debug
           buildozer_version: stable
 
-      # Upload artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
