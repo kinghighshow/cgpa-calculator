@@ -10,7 +10,7 @@ jobs:
     steps:
       # Checkout the repository
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Used to get and set date output
       - name: Get Date
@@ -21,21 +21,21 @@ jobs:
 
       # Cache the Buildozer global directory
       - name: Cache Buildozer global directory
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: .buildozer_global
           key: buildozer-global-${{ hashFiles('buildozer.spec') }} # Replace with your path
 
       # Cache the .buildozer directory
       - name: Cache Buildozer directory
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: .buildozer
           key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
 
       # Build with Buildozer
       - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
+        uses: ArtemSBulgakov/buildozer-action@v3
         id: buildozer
         with:
           command: buildozer android debug
